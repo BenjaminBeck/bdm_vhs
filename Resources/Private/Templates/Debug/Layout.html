@@ -1,0 +1,139 @@
+<div xmlns="http://www.w3.org/1999/xhtml"
+     lang="en"
+     data-namespace-typo3-fluid="true"
+     xmlns:vh="http://typo3.org/ns/BDM/BdmVhs/ViewHelpers"
+     xmlns:f="http://typo3.org/ns/TYPO3/Fluid/ViewHelpers">
+	
+	
+	
+	<div class="el-debug-page" style="display:none;">
+		<div class="bootstrap-grid-overlay">
+			<div class="container">
+				<div class="row">
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+				</div>
+			</div>
+		</div>
+		<div class="bootstrap-grid-overlay-fluid">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+					<div class="col-1"></div>
+				</div>
+			</div>
+		</div>
+		<div class="bootstrap-breakpoints-overlay">
+			<div class="container-xs"><span class="label">XS: 0px - 576px</span></div>
+			<div class="container-sm"><span class="label">SM: 576px - 720px</span></div>
+			<div class="container-md"><span class="label">MD: 720px - 768px</span></div>
+			<div class="container-lg"><span class="label">LG: 960px</span></div>
+			<div class="container-xl"><span class="label">XL: 1140px</span></div>
+			<div class="container-xxl"><span class="label">XXL: 1320px</span></div>
+		</div>
+	</div>
+	<script>
+		// after page load:
+		window.addEventListener('load', function () {
+			// now we have jquery available.
+			// first:
+			const initDebugOverlay = function (){
+				$('.el-debug-page').css({display: 'block'});
+				(function(){
+					const $toggle = $('input[data-action="toggle-grid"]');
+					var cookie = document.cookie;
+					var isActive = cookie.indexOf('bootstrap-grid-overlay=true') !== -1;
+					$toggle.prop('checked', isActive);
+					if(isActive){
+						$('.page').css({position: 'relative'});
+					}
+					$('.bootstrap-grid-overlay').toggleClass('active', isActive);
+					// also toggle active if SHIFT+G is pressed
+					$(document).on('keydown', function(e){
+						if(e.shiftKey && e.key === 'G'){
+							$toggle.prop('checked', !$toggle.prop('checked'));
+							$toggle.trigger('change');
+						}
+					});
+					$toggle.on('change', function(){
+						var isActive = $toggle.prop('checked');
+						if(isActive){
+							$('.page').css({position: 'relative'});
+						}
+						$('.bootstrap-grid-overlay').toggleClass('active', isActive);
+						document.cookie = "bootstrap-grid-overlay=" + isActive + "; path=/";
+					});
+				})();
+				(function(){
+					const $toggle = $('input[data-action="toggle-grid-fluid"]');
+					var cookie = document.cookie;
+					var isActive = cookie.indexOf('bootstrap-grid-overlay-fluid=true') !== -1;
+					$toggle.prop('checked', isActive);
+					$('.bootstrap-grid-overlay-fluid').toggleClass('active', isActive);
+					$toggle.on('change', function(){
+						var isActive = $toggle.prop('checked');
+						$('.bootstrap-grid-overlay-fluid').toggleClass('active', isActive);
+						document.cookie = "bootstrap-grid-overlay-fluid=" + isActive + "; path=/";
+					});
+				})();
+				(function(){
+					const $toggle = $('input[data-action="toggle-breakpoints"]');
+					var cookie = document.cookie;
+					var isActive = cookie.indexOf('bootstrap-breakpoints-overlay=true') !== -1;
+					$toggle.prop('checked', isActive);
+					$('.bootstrap-breakpoints-overlay').toggleClass('active', isActive);
+					$toggle.on('change', function(){
+						var isActive = $toggle.prop('checked');
+						$('.bootstrap-breakpoints-overlay').toggleClass('active', isActive);
+						document.cookie = "bootstrap-breakpoints-overlay=" + isActive + "; path=/";
+					});
+				})();
+				(function(){
+					const $toggle = $('input[data-action="toggle-debug-ces"]');
+					var cookie = document.cookie;
+					var isActive = cookie.indexOf('toggle-debug-ces=true') !== -1;
+					$toggle.prop('checked', isActive);
+					$('body').toggleClass('toggle-debug-ces', isActive);
+					$toggle.on('change', function(){
+						var isActive = $toggle.prop('checked');
+						$('body').toggleClass('toggle-debug-ces', isActive);
+						document.cookie = "toggle-debug-ces=" + isActive + "; path=/";
+					});
+				})();
+			}
+
+			// check every 100ms if jquery is available
+			// then call initDebugOverlay
+			var interval = setInterval(function(){
+				if (typeof $ !== 'undefined') {
+					clearInterval(interval);
+					initDebugOverlay();
+				}
+			}, 100);
+
+
+
+
+		});
+	</script>
+</div>
