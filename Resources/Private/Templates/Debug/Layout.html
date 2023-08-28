@@ -4,9 +4,7 @@
      xmlns:vh="http://typo3.org/ns/BDM/BdmVhs/ViewHelpers"
      xmlns:f="http://typo3.org/ns/TYPO3/Fluid/ViewHelpers">
 	
-	
-	
-	<div class="el-debug-page" style="display:none;">
+	<div class="el-debug-page" aria-hidden="true" style="display:none;">
 		<div class="bootstrap-grid-overlay">
 			<div class="container">
 				<div class="row">
@@ -44,96 +42,59 @@
 			</div>
 		</div>
 		<div class="bootstrap-breakpoints-overlay">
-			<div class="container-xs"><span class="label">XS: 0px - 576px</span></div>
-			<div class="container-sm"><span class="label">SM: 576px - 720px</span></div>
-			<div class="container-md"><span class="label">MD: 720px - 768px</span></div>
-			<div class="container-lg"><span class="label">LG: 960px</span></div>
-			<div class="container-xl"><span class="label">XL: 1140px</span></div>
-			<div class="container-xxl"><span class="label">XXL: 1320px</span></div>
+			<f:variable name="breakpoints" value="{0: 'xs', 1: 'sm', 2: 'md', 3: 'lg', 4: 'xl', 5: 'xxl'}" />
+			<f:variable name="breakpointSelectorParts" value="{0: '-xs', 1: '-sm', 2: '-md', 3: '-lg', 4: '-xl', 5: '-xxl'}" />
+			<f:for each="{breakpoints}" as="breakpoint" key="index" iteration="iter">
+				<f:variable name="nextIndex" value="{iter.cycle}" />
+				<f:variable name="prevIndex" value="{iter.cycle - 2}" />
+				<f:variable name="nextBreakpoint" value="{breakpoints.{nextIndex}}" />
+				<f:variable name="prevBreakpoint" value="{breakpoints.{prevIndex}}" />
+				
+				
+				<f:variable name="currentSelectorPart" value="{breakpointSelectorParts.{index}}" />
+				<f:variable name="nextSelectorPart" value="{breakpointSelectorParts.{nextIndex}}" />
+				<f:variable name="prevSelectorPart" value="{breakpointSelectorParts.{prevIndex}}" />
+				
+				<f:comment>
+					always visible & hidden in current breakpoint & visible in next breakpoint
+				</f:comment>
+				<div style="--debug-breakpoint-name: '{breakpoint}'" class="container container{currentSelectorPart} d-block d{currentSelectorPart}-none d{nextSelectorPart}-block ">
+					<span class="label">
+						<span class="lower"></span>
+						<span class="separator"></span>
+						<span class="upper"></span>
+					</span>
+				</div>
+				<f:comment>
+					visible only in current breakpoint
+				</f:comment>
+				<div style="--debug-breakpoint-name: '{breakpoint}'" class="container container{currentSelectorPart} active d-none d{currentSelectorPart}-block  d{nextSelectorPart}-none">
+					<span class="label">
+						<span class="lower"></span>
+						<span class="separator"></span>
+						<span class="upper"></span>
+					</span>
+				</div>
+			</f:for>
+			
+			<f:comment>
+				<div class="container-xs"><span class="label">XS: <span class="lower"></span> 0px - 576px <span class="separator"></span><span class="upper"></span></span></div>
+				<div class="container-sm"><span class="label">SM: <span class="lower"></span> 576px - 720px <span class="separator"></span><span class="upper"></span></span></div>
+				<div class="container-md"><span class="label">MD: <span class="lower"></span> 720px - 768px <span class="separator"></span><span class="upper"></span></span></div>
+				<div class="container-lg"><span class="label">LG: <span class="lower"></span> 960px <span class="separator"></span><span class="upper"></span></span></div>
+				<div class="container-xl"><span class="label">XL: <span class="lower"></span> 1140px <span class="separator"></span><span class="upper"></span></span></div>
+				<div class="container-xxl"><span class="label">XXL: <span class="lower"></span> 1320px <span class="separator"></span><span class="upper"></span></span></div>
+			</f:comment>
+			
+		</div>
+		<div class="smallgrid-overlay">
 		</div>
 	</div>
-	<script>
-		// after page load:
-		window.addEventListener('load', function () {
-			// now we have jquery available.
-			// first:
-			const initDebugOverlay = function (){
-				$('.el-debug-page').css({display: 'block'});
-				(function(){
-					const $toggle = $('input[data-action="toggle-grid"]');
-					var cookie = document.cookie;
-					var isActive = cookie.indexOf('bootstrap-grid-overlay=true') !== -1;
-					$toggle.prop('checked', isActive);
-					if(isActive){
-						$('.page').css({position: 'relative'});
-					}
-					$('.bootstrap-grid-overlay').toggleClass('active', isActive);
-					// also toggle active if SHIFT+G is pressed
-					$(document).on('keydown', function(e){
-						if(e.shiftKey && e.key === 'G'){
-							$toggle.prop('checked', !$toggle.prop('checked'));
-							$toggle.trigger('change');
-						}
-					});
-					$toggle.on('change', function(){
-						var isActive = $toggle.prop('checked');
-						if(isActive){
-							$('.page').css({position: 'relative'});
-						}
-						$('.bootstrap-grid-overlay').toggleClass('active', isActive);
-						document.cookie = "bootstrap-grid-overlay=" + isActive + "; path=/";
-					});
-				})();
-				(function(){
-					const $toggle = $('input[data-action="toggle-grid-fluid"]');
-					var cookie = document.cookie;
-					var isActive = cookie.indexOf('bootstrap-grid-overlay-fluid=true') !== -1;
-					$toggle.prop('checked', isActive);
-					$('.bootstrap-grid-overlay-fluid').toggleClass('active', isActive);
-					$toggle.on('change', function(){
-						var isActive = $toggle.prop('checked');
-						$('.bootstrap-grid-overlay-fluid').toggleClass('active', isActive);
-						document.cookie = "bootstrap-grid-overlay-fluid=" + isActive + "; path=/";
-					});
-				})();
-				(function(){
-					const $toggle = $('input[data-action="toggle-breakpoints"]');
-					var cookie = document.cookie;
-					var isActive = cookie.indexOf('bootstrap-breakpoints-overlay=true') !== -1;
-					$toggle.prop('checked', isActive);
-					$('.bootstrap-breakpoints-overlay').toggleClass('active', isActive);
-					$toggle.on('change', function(){
-						var isActive = $toggle.prop('checked');
-						$('.bootstrap-breakpoints-overlay').toggleClass('active', isActive);
-						document.cookie = "bootstrap-breakpoints-overlay=" + isActive + "; path=/";
-					});
-				})();
-				(function(){
-					const $toggle = $('input[data-action="toggle-debug-ces"]');
-					var cookie = document.cookie;
-					var isActive = cookie.indexOf('toggle-debug-ces=true') !== -1;
-					$toggle.prop('checked', isActive);
-					$('body').toggleClass('toggle-debug-ces', isActive);
-					$toggle.on('change', function(){
-						var isActive = $toggle.prop('checked');
-						$('body').toggleClass('toggle-debug-ces', isActive);
-						document.cookie = "toggle-debug-ces=" + isActive + "; path=/";
-					});
-				})();
-			}
-
-			// check every 100ms if jquery is available
-			// then call initDebugOverlay
-			var interval = setInterval(function(){
-				if (typeof $ !== 'undefined') {
-					clearInterval(interval);
-					initDebugOverlay();
-				}
-			}, 100);
-
-
-
-
-		});
-	</script>
+	<style>
+		.layout-debug-element{
+			display: none;
+		}
+	</style>
+	<link rel="stylesheet" href="{f:uri.resource(path: 'EXT:bdm_vhs/Resources/Public/Css/debug.css')}"/>
+	<script src="{f:uri.resource(path: 'EXT:bdm_vhs/Resources/Public/Js/debug.js')}"></script>
 </div>
