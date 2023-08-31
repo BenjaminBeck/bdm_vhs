@@ -2,7 +2,56 @@
 window.addEventListener('load', function () {
 	// now we have jquery available.
 	// first:
+
+	const log = function () {
+		//console.log(...arguments);
+	};
+	const warn = function () {
+		//console.warn(...arguments);
+	};
 	const initDebugOverlay = function (){
+
+
+		function createCanvasWithGrid() {
+			let isActive = $('.smallgrid-overlay').hasClass('active');
+			if(!isActive){
+				return;
+			}
+			// Erstelle ein Canvas-Element mit den gleichen Pixelmaßen wie der Browser-Viewport
+			const canvas = document.createElement('canvas');
+			let devicePixelRatio = window.devicePixelRatio || 1;
+			// min 2
+			devicePixelRatio = Math.max(2, devicePixelRatio);
+			canvas.width = window.innerWidth * devicePixelRatio;
+			canvas.height = window.innerHeight * devicePixelRatio;
+			// document.body.appendChild(canvas);
+			const container = document.querySelector('.smallgrid-overlay');
+			container.appendChild(canvas);
+			const ctx = canvas.getContext('2d');
+			// Zeichne den weißen Hintergrund
+			// ctx.fillStyle = 'white';
+			// ctx.fillRect(0, 0, canvas.width, canvas.height);
+			// Zeichne das Raster von Quadraten
+			const squareSize = 16 * devicePixelRatio;
+			const borderWidth = 1;
+			const squaresPerRow = Math.ceil(canvas.width / squareSize);
+			const squaresPerCol = Math.ceil(canvas.height / squareSize);
+			for (let row = 0; row < squaresPerCol; row++) {
+				for (let col = 0; col < squaresPerRow; col++) {
+					const x = col * squareSize;
+					const y = row * squareSize;
+					// Zeichne den äußeren Rahmen des Quadrats
+					ctx.fillStyle = 'red';
+					ctx.fillRect(x, y, squareSize, borderWidth);
+					ctx.fillRect(x, y, borderWidth, squareSize);
+					ctx.fillRect(x, y + squareSize - borderWidth, squareSize, borderWidth);
+					ctx.fillRect(x + squareSize - borderWidth, y, borderWidth, squareSize);
+					// Zeichne den inneren Bereich des Quadrats
+					// ctx.fillStyle = 'transparent';
+					// ctx.fillRect(x + borderWidth, y + borderWidth, squareSize - borderWidth * 2, squareSize - borderWidth * 2);
+				}
+			}
+		}
 
 		(function(){
 
@@ -44,52 +93,7 @@ window.addEventListener('load', function () {
 			}
 			// const data = elDebugPage
 
-			function createCanvasWithGrid() {
-				// Erstelle ein Canvas-Element mit den gleichen Pixelmaßen wie der Browser-Viewport
-				const canvas = document.createElement('canvas');
 
-				let devicePixelRatio = window.devicePixelRatio || 1;
-
-				// min 2
-				devicePixelRatio = Math.max(2, devicePixelRatio);
-
-				canvas.width = window.innerWidth * devicePixelRatio;
-				canvas.height = window.innerHeight * devicePixelRatio;
-				// document.body.appendChild(canvas);
-
-				const container = document.querySelector('.smallgrid-overlay');
-				container.appendChild(canvas);
-
-				const ctx = canvas.getContext('2d');
-
-				// Zeichne den weißen Hintergrund
-				// ctx.fillStyle = 'white';
-				// ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-				// Zeichne das Raster von Quadraten
-				const squareSize = 16 * devicePixelRatio;
-				const borderWidth = 1;
-				const squaresPerRow = Math.ceil(canvas.width / squareSize);
-				const squaresPerCol = Math.ceil(canvas.height / squareSize);
-
-				for (let row = 0; row < squaresPerCol; row++) {
-					for (let col = 0; col < squaresPerRow; col++) {
-						const x = col * squareSize;
-						const y = row * squareSize;
-
-						// Zeichne den äußeren Rahmen des Quadrats
-						ctx.fillStyle = 'red';
-						ctx.fillRect(x, y, squareSize, borderWidth);
-						ctx.fillRect(x, y, borderWidth, squareSize);
-						ctx.fillRect(x, y + squareSize - borderWidth, squareSize, borderWidth);
-						ctx.fillRect(x + squareSize - borderWidth, y, borderWidth, squareSize);
-
-						// Zeichne den inneren Bereich des Quadrats
-						// ctx.fillStyle = 'transparent';
-						// ctx.fillRect(x + borderWidth, y + borderWidth, squareSize - borderWidth * 2, squareSize - borderWidth * 2);
-					}
-				}
-			}
 			createCanvasWithGrid();
 			window.addEventListener('resize', function(){
 				const els = document.querySelectorAll('.smallgrid-overlay canvas');
@@ -124,7 +128,7 @@ window.addEventListener('load', function () {
 
 
 
-		(function(){
+		// (function(){
 			function drawMultipleRectangles(rectanglePositions, el = null, type=null) {
 				for (const [key, position] of Object.entries(rectanglePositions)) {
 					drawRectangle(position, el, type, key);
@@ -153,7 +157,7 @@ window.addEventListener('load', function () {
 			}
 			function drawRectangle(position, htmlElement = null, type = null, orientation = null) {
 				if(position.height <= 0 || position.width <= 0){
-					console.warn('height or width is <= 0');
+					warn('height or width is <= 0');
 					return;
 				}
 				const rectangle = document.createElement('div');
@@ -259,7 +263,7 @@ window.addEventListener('load', function () {
 				}
 				document.body.appendChild(rectangle);
 
-				console.log('drawn rectangle', {
+				log('drawn rectangle', {
 					position,
 					htmlElement,
 					orientation,
@@ -355,6 +359,10 @@ window.addEventListener('load', function () {
 
 			const ces = document.querySelectorAll('main > [class^="ce-"], header > [class^="ce-"], footer > [class^="ce-"]');
 			const drawLayoutDebugElements = function (ces){
+				let isActive = $('body').hasClass('toggle-debug-ces');
+				if(!isActive){
+					return;
+				}
 				ces.forEach(function(el){
 					let positions = getElementMarginAbsolutePositions(el);
 					drawMultipleRectangles(positions, el, 'margin');
@@ -393,7 +401,16 @@ window.addEventListener('load', function () {
 				drawLayoutDebugElements(ces);
 				DOMNodeInsertedMutex = false;
 			});
-			// const positions = getElementMarginAbsolutePositions(el);
+			// Replacement mutation observer code:
+			// const observer = new MutationObserver(mutationList =>
+			// 	mutationList.filter(m => m.type === 'childList').forEach(m => {
+			// 		m.addedNodes.forEach(doSomething);
+			// 	}));
+			// observer.observe(target,{childList: true, subtree: true});
+
+
+
+		// const positions = getElementMarginAbsolutePositions(el);
 			// drawMultipleRectangles(positions);
 
 			// document.addEventListener('resize', function(){
@@ -412,7 +429,7 @@ window.addEventListener('load', function () {
 
 
 
-		})();
+		// })();
 
 
 
@@ -452,6 +469,9 @@ window.addEventListener('load', function () {
 				$('.page').css({position: 'relative'});
 			}
 			$('.smallgrid-overlay').toggleClass('active', isActive);
+			if(isActive){
+				createCanvasWithGrid();
+			}
 			// also toggle active if SHIFT+G is pressed
 			$(document).on('keydown', function(e){
 				if(e.shiftKey && e.key === 'G'){
@@ -466,6 +486,9 @@ window.addEventListener('load', function () {
 				}
 				$('.smallgrid-overlay').toggleClass('active', isActive);
 				document.cookie = "smallgrid-overlay=" + isActive + "; path=/";
+				if(isActive){
+					createCanvasWithGrid();
+				}
 			});
 		})();
 		(function(){
@@ -504,6 +527,12 @@ window.addEventListener('load', function () {
 			var cookie = document.cookie;
 			var isActive = cookie.indexOf('toggle-debug-ces=true') !== -1;
 			$toggle.prop('checked', isActive);
+			$toggle.trigger('change');
+			const drawDebugCes = function(){
+				const ces = document.querySelectorAll('main > [class^="ce-"], header > [class^="ce-"], footer > [class^="ce-"]');
+				drawLayoutDebugElements(ces);
+			};
+
 			$('body').toggleClass('toggle-debug-ces', isActive);
 			$(document).on('keydown', function(e){
 				if(e.shiftKey && e.key === 'E'){
@@ -515,6 +544,14 @@ window.addEventListener('load', function () {
 				var isActive = $toggle.prop('checked');
 				$('body').toggleClass('toggle-debug-ces', isActive);
 				document.cookie = "toggle-debug-ces=" + isActive + "; path=/";
+				if(isActive){
+					drawDebugCes();
+				}else{
+					const els = document.querySelectorAll('.layout-debug-element');
+					els.forEach(function(e){
+						e.remove();
+					});
+				}
 			});
 		})();
 	}
